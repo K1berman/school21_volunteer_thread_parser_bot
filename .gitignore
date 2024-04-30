@@ -1,0 +1,8 @@
+.env
+venv/
+.coverage
+*.py,cover
+.cache/
+__pycache__/
+*.py[cod]
+.idea/
