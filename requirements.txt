@@ -1,0 +1,5 @@
+selenium==4.20.0
+beautifulsoup4==4.12.3
+aiogram==3.5.0
+
+
