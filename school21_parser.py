@@ -62,6 +62,10 @@ def find_last_post(HTML_CODE: str) -> tuple[str, str] | None:
             last_rcx_message = soup.find_all("div", class_="rcx-message")[-2]
             post_id = last_rcx_message.get("id")
 
+        if post_id is None: #отработка если у последнего поста есть тред
+            last_rcx_message = soup.find_all("div", class_="rcx-message")[-3]
+            post_id = last_rcx_message.get("id")
+
         last_post = last_rcx_message.find("div", "rcx-box rcx-box--full rcx-message-container")
         if last_post is None:
             print("Последний пост не найден!")
