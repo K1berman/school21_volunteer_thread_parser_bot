@@ -76,6 +76,8 @@ async def main() -> bool:
     await bot.send_message(text="Бот запущен!", chat_id=TG_USER_ID)
 
     options = webdriver.ChromeOptions()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--headless")
 
     driver = webdriver.Chrome(options=options)
 
