@@ -7,7 +7,7 @@ if [ -z "$python3_path" ]; then
     echo "Python не установлен. Установка Python и pip..."
     sudo apt-get update
     sudo apt-get install -y python3 python3-pip python3-venv
-else
+elses
     echo "Python установлен по пути: $python3_path"
 fi
 

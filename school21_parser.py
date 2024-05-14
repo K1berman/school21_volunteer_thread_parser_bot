@@ -1,4 +1,5 @@
 import asyncio
+import re
 import time
 from config import URL, TOKEN, LOGIN, PASSWORD, TG_USER_ID, TG_GROUP_ID
 from selenium import webdriver
@@ -7,6 +8,34 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from aiogram import Bot
 from bs4 import BeautifulSoup
+
+
+def make_post_format(POST_HTML: str) -> str | None:
+    try:
+        message_data = []
+        header = POST_HTML.find("div", class_="rcx-box rcx-box--full rcx-message-header")
+        header_name = header.find("span", class_="rcx-box rcx-box--full rcx-message-header__name-container")
+        header_time = header.find('span', class_='rcx-box rcx-box--full rcx-message-header__time')['title']
+        message = POST_HTML.find("div", class_="rcx-message-body").find("div", class_="rcx-css-9nv4z9")
+        for message_string in message.find_all("div"):
+            if message_string is None:
+                return None
+            link = message_string.find("a")
+            message_string = re.sub(r":(.+?):", "&#10071;", message_string.text)
+            if link:
+                link_text = link.text
+                link_url = link.get('href')
+                formatted_link = f'<a href="{link_url}">{link_text}</a>'
+                full_text = re.sub(link_text, formatted_link, message_string)
+                message_data.append(full_text)
+            else:
+                message_data.append(message_string)
+        message = "\n".join(message_data)
+        data = f"{message}" if header is None else f"<b>{header_name.text} | {header_time}</b>\n{message}"
+        return data
+    except Exception as error:
+        print(f"Ошибка: {error}")
+        return None
 
 
 def make_authorization(driver: object, URL: str, LOGIN:str, PASSWORD: str) -> bool:
@@ -33,17 +62,16 @@ def make_authorization(driver: object, URL: str, LOGIN:str, PASSWORD: str) -> bo
         return False
 
 
-def check_changes(post_id: str, last_post_html:str) -> str | None:
+def check_changes(post_id: str, last_post_html: str) -> str | None:
     with open("log.txt", "r", encoding="utf-8") as file_data:
         if file_data.read() != post_id:
             with open("log.txt", "w", encoding="utf-8") as file:
                 try:
                     file.write(post_id)
-                    header = last_post_html.find("div", class_="rcx-box rcx-box--full rcx-message-header")
-                    message = last_post_html.find("div", class_="rcx-message-body").find("div", class_="rcx-css-9nv4z9")
-
-                    data = f"{message.text.strip()}" if header is None else f"{header.text}\n{message.text.strip()}"
-
+                    data = make_post_format(last_post_html)
+                    if not data:
+                        print("Ошибка форматирования поста!")
+                        return None
                     return data
                 except Exception as error:
                     print(f"Ошибка: {error}")
@@ -94,7 +122,6 @@ async def main() -> bool:
     while (True):
         try:
             time.sleep(10)
-            driver.refresh()
             wait = WebDriverWait(driver, 360)
             wait.until(EC.presence_of_element_located((By.CLASS_NAME, "rcx-message")))
 
@@ -109,9 +136,9 @@ async def main() -> bool:
 
             data = check_changes(post_id, last_post)
             if data:
-                await bot.send_message(text=data, chat_id=TG_USER_ID)
+                await bot.send_message(text=data, chat_id=TG_USER_ID, parse_mode='HTML')
                 if TG_GROUP_ID:
-                    await bot.send_message(text=data, chat_id=TG_GROUP_ID)
+                    await bot.send_message(text=data, chat_id=TG_GROUP_ID, parse_mode='HTML')
         except Exception as error:
             print(f"Ошибка: {error}")
             await bot.send_message(text = "Ошибка парсера!", chat_id=TG_USER_ID)
