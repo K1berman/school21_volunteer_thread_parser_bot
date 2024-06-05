@@ -16,7 +16,7 @@ def make_post_format(POST_HTML: str) -> str | None:
         header = POST_HTML.find("div", class_="rcx-box rcx-box--full rcx-message-header")
         header_name = header.find("span", class_="rcx-box rcx-box--full rcx-message-header__name-container")
         header_time = header.find('span', class_='rcx-box rcx-box--full rcx-message-header__time')['title']
-        message = POST_HTML.find("div", class_="rcx-message-body").find("div", class_="rcx-css-9nv4z9")
+        message = POST_HTML.find("div", class_="rcx-message-body")
         for message_string in message.find_all("div"):
             if message_string is None:
                 return None
