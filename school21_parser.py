@@ -44,9 +44,9 @@ def make_authorization(driver: object, URL: str, LOGIN:str, PASSWORD: str) -> bo
         driver.get(URL)
 
         wait = WebDriverWait(driver, 120)
-        wait.until(EC.presence_of_element_located((By.NAME, 'username')))
+        wait.until(EC.presence_of_element_located((By.NAME, 'usernameOrEmail')))
 
-        username_input = driver.find_element(By.NAME, 'username')
+        username_input = driver.find_element(By.NAME, 'usernameOrEmail')
         password_input = driver.find_element(By.NAME, 'password')
         username_input.send_keys(LOGIN)
         password_input.send_keys(PASSWORD)
@@ -113,7 +113,7 @@ async def main() -> bool:
 
     options = webdriver.ChromeOptions()
     options.add_argument("--no-sandbox")
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
 
     driver = webdriver.Chrome(options=options)
 
