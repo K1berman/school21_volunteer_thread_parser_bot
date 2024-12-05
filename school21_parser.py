@@ -1,6 +1,7 @@
 import asyncio
 import re
 import time
+import sys
 from config import URL, TOKEN, LOGIN, PASSWORD, TG_USER_ID, TG_GROUP_ID
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -104,6 +105,9 @@ def find_last_post(HTML_CODE: str) -> tuple[str, str] | None:
 
 
 async def main() -> bool:
+
+    sys.stdout.reconfigure(encoding='utf-8')
+
     bot = Bot(token=TOKEN)
     await bot.send_message(text="Бот запущен!", chat_id=TG_USER_ID)
 
